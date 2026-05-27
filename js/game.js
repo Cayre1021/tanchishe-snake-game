@@ -1,7 +1,176 @@
-import { Snake, GRID_SIZE, INITIAL_SPEED, SPEED_INCREMENT, MIN_SPEED } from "./snake.js";
-import { Food } from "./food.js";
-import { InputHandler } from "./input.js";
+const GRID_SIZE = 20;
+const INITIAL_SPEED = 150;
+const SPEED_INCREMENT = 2;
+const MIN_SPEED = 60;
 
+const DIRECTION = {
+  UP: { x: 0, y: -1 },
+  DOWN: { x: 0, y: 1 },
+  LEFT: { x: -1, y: 0 },
+  RIGHT: { x: 1, y: 0 },
+};
+
+// ── Snake ──
+class Snake {
+  constructor(cols, rows) {
+    this.cols = cols;
+    this.rows = rows;
+    this.reset();
+  }
+
+  reset() {
+    const cx = Math.floor(this.cols / 2);
+    const cy = Math.floor(this.rows / 2);
+    this.body = [
+      { x: cx, y: cy },
+      { x: cx - 1, y: cy },
+      { x: cx - 2, y: cy },
+    ];
+    this.direction = DIRECTION.RIGHT;
+    this.nextDirection = DIRECTION.RIGHT;
+    this.growing = false;
+    this.alive = true;
+  }
+
+  setDirection(dir) {
+    const isOpposite =
+      dir.x + this.direction.x === 0 && dir.y + this.direction.y === 0;
+    if (!isOpposite) {
+      this.nextDirection = dir;
+    }
+  }
+
+  update() {
+    this.direction = this.nextDirection;
+    const head = this.body[0];
+    const newHead = {
+      x: head.x + this.direction.x,
+      y: head.y + this.direction.y,
+    };
+
+    if (
+      newHead.x < 0 ||
+      newHead.x >= this.cols ||
+      newHead.y < 0 ||
+      newHead.y >= this.rows
+    ) {
+      this.alive = false;
+      return;
+    }
+
+    for (const segment of this.body) {
+      if (segment.x === newHead.x && segment.y === newHead.y) {
+        this.alive = false;
+        return;
+      }
+    }
+
+    this.body.unshift(newHead);
+    if (!this.growing) {
+      this.body.pop();
+    }
+    this.growing = false;
+  }
+
+  grow() {
+    this.growing = true;
+  }
+
+  getHead() {
+    return this.body[0];
+  }
+
+  occupies(x, y) {
+    return this.body.some((s) => s.x === x && s.y === y);
+  }
+}
+
+// ── Food ──
+class Food {
+  constructor(cols, rows) {
+    this.cols = cols;
+    this.rows = rows;
+    this.position = { x: 0, y: 0 };
+  }
+
+  spawn(snake) {
+    let x, y;
+    do {
+      x = Math.floor(Math.random() * this.cols);
+      y = Math.floor(Math.random() * this.rows);
+    } while (snake.occupies(x, y));
+    this.position = { x, y };
+  }
+
+  getPosition() {
+    return this.position;
+  }
+}
+
+// ── Input ──
+class InputHandler {
+  constructor(onDirection) {
+    this.onDirection = onDirection;
+    this.touchStartX = 0;
+    this.touchStartY = 0;
+    this.minSwipe = 30;
+
+    this._handleKey = this._handleKey.bind(this);
+    this._handleTouchStart = this._handleTouchStart.bind(this);
+    this._handleTouchEnd = this._handleTouchEnd.bind(this);
+
+    document.addEventListener("keydown", this._handleKey);
+    document.addEventListener("touchstart", this._handleTouchStart, {
+      passive: true,
+    });
+    document.addEventListener("touchend", this._handleTouchEnd, {
+      passive: true,
+    });
+  }
+
+  _handleKey(e) {
+    const keyMap = {
+      ArrowUp: DIRECTION.UP,
+      ArrowDown: DIRECTION.DOWN,
+      ArrowLeft: DIRECTION.LEFT,
+      ArrowRight: DIRECTION.RIGHT,
+      w: DIRECTION.UP,
+      s: DIRECTION.DOWN,
+      a: DIRECTION.LEFT,
+      d: DIRECTION.RIGHT,
+      W: DIRECTION.UP,
+      S: DIRECTION.DOWN,
+      A: DIRECTION.LEFT,
+      D: DIRECTION.RIGHT,
+    };
+    if (keyMap[e.key]) {
+      e.preventDefault();
+      this.onDirection(keyMap[e.key]);
+    }
+  }
+
+  _handleTouchStart(e) {
+    const touch = e.touches[0];
+    this.touchStartX = touch.clientX;
+    this.touchStartY = touch.clientY;
+  }
+
+  _handleTouchEnd(e) {
+    const touch = e.changedTouches[0];
+    const dx = touch.clientX - this.touchStartX;
+    const dy = touch.clientY - this.touchStartY;
+
+    if (Math.abs(dx) < this.minSwipe && Math.abs(dy) < this.minSwipe) return;
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+      this.onDirection(dx > 0 ? DIRECTION.RIGHT : DIRECTION.LEFT);
+    } else {
+      this.onDirection(dy > 0 ? DIRECTION.DOWN : DIRECTION.UP);
+    }
+  }
+}
+
+// ── Game ──
 const STATE = {
   MENU: "menu",
   PLAYING: "playing",

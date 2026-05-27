@@ -21,10 +21,7 @@ tanchishe/
 ├── css/
 │   └── style.css     # 样式
 ├── js/
-│   ├── game.js       # 游戏主循环与状态管理
-│   ├── snake.js      # 蛇的移动、生长、碰撞逻辑
-│   ├── food.js       # 食物生成与渲染
-│   └── input.js      # 键盘/触屏输入处理
+│   └── game.js       # 游戏全部逻辑（蛇、食物、输入、主循环）
 ├── CLAUDE.md         # 项目规范（本文件）
 └── README.md         # 项目说明
 ```
