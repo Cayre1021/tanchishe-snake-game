@@ -1,0 +1,108 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #16213e;
+  color: #eee;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#gameContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 540px;
+  padding: 10px;
+}
+
+canvas {
+  border: 2px solid #0f3460;
+  border-radius: 8px;
+  display: block;
+  touch-action: none;
+}
+
+.screen {
+  text-align: center;
+  padding: 20px;
+}
+
+.screen h1 {
+  font-size: 2.4rem;
+  margin-bottom: 8px;
+  color: #e94560;
+}
+
+.screen p {
+  color: #aaa;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+}
+
+.btn {
+  background: #0f3460;
+  color: #eee;
+  border: none;
+  padding: 14px 36px;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn:hover {
+  background: #1a5276;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+#gameUI {
+  width: 100%;
+}
+
+#scoreBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 4px;
+  font-size: 1rem;
+}
+
+#scoreBar span {
+  font-weight: 600;
+}
+
+#finalScore {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #e94560;
+  display: block;
+  margin: 10px 0;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Mobile tweaks */
+@media (max-height: 600px) {
+  .screen h1 {
+    font-size: 1.8rem;
+  }
+  #finalScore {
+    font-size: 2.2rem;
+  }
+}
